@@ -169,6 +169,8 @@ public class Main {
                         sb.substring(start, end));
             } else if(choice.equals("22")) {
                 System.out.println("The contents of the StringBuilder: " + sb);
+            } else if(choice.equalsIgnoreCase("X")) {
+                break;
             } else {
                 System.out.println("Invalid choice");
             }
