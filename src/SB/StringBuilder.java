@@ -6,6 +6,7 @@ public class StringBuilder implements StringBuilderInterface {
     private final int DEFAULT_CAP = 10;
     private int numElements = 0;
     private final double LOAD_THRESHOLD = .75;
+    private final int ELEMENT_NOT_FOUND = -1;
 
     /**
      * Constructor initializes the StringBuilder's internal array to the default capacity of 10.
@@ -30,8 +31,7 @@ public class StringBuilder implements StringBuilderInterface {
     public StringBuilder(String s) {
         array = new char[capacity = s.length() * 2];
         for(int i = 0; i < s.length(); i++) {
-            array[i] = s.charAt(i);
-            numElements++;
+            array[numElements++] = s.charAt(i);
         }
     }
 
@@ -40,9 +40,9 @@ public class StringBuilder implements StringBuilderInterface {
      * @param c The character value to add.
      */
     public void append(char c) {
-        array[numElements++] = c;
-        if((double)(numElements / capacity) >= LOAD_THRESHOLD) {
+        if((double)(numElements + 1 / capacity) >= LOAD_THRESHOLD) {
             resize();
+        array[numElements++] = c;
         }
     }
 
@@ -66,16 +66,12 @@ public class StringBuilder implements StringBuilderInterface {
      * @param b The boolean value to add.
      */
     public void append(boolean b) {
-        if(b) {
-            array[numElements++] = 't'; array[numElements++] = 'r';
-            array[numElements++] = 'u'; array[numElements++] = 'e';
-        } else {
-            array[numElements++] = 'f'; array[numElements++] = 'a';
-            array[numElements++] = 'l'; array[numElements++] = 's';
-            array[numElements++] = 'e';
-        }
-        if((double)(numElements / capacity) >= LOAD_THRESHOLD) {
+        String boolStr = Boolean.toString(b);
+        if((double)(numElements + boolStr.length() / capacity) >= LOAD_THRESHOLD) {
             resize();
+        }
+        for(int i = 0; i < boolStr.length(); i++) {
+            array[numElements++] = boolStr.charAt(i);
         }
     }
 
@@ -314,7 +310,7 @@ public class StringBuilder implements StringBuilderInterface {
                 return i;
             }
         }
-        return -1;
+        return ELEMENT_NOT_FOUND;
     }
 
     /**
@@ -328,7 +324,7 @@ public class StringBuilder implements StringBuilderInterface {
                 return i;
             }
         }
-        return -1;
+        return ELEMENT_NOT_FOUND;
     }
 
     /**
@@ -387,6 +383,9 @@ public class StringBuilder implements StringBuilderInterface {
     public String toString() {
         char[] contents = new char[numElements];
         for(int i = 0; i < numElements; i++) {
+            if(array[i] == '\u0000') {
+                break;
+            }
             contents[i] = array[i];
         }
         return new String(contents);
@@ -398,9 +397,10 @@ public class StringBuilder implements StringBuilderInterface {
     private void resize() {
         char[] resizedArray = new char[capacity *= 2];
         for(int i = 0; i < array.length; i++) {
-            if(array[i] != '\u0000') {
-                resizedArray[i] = array[i];
+            if(array[i] == '\u0000') {
+                break;
             }
+            resizedArray[i] = array[i];
         }
         array = resizedArray;
     }
@@ -412,9 +412,10 @@ public class StringBuilder implements StringBuilderInterface {
     private void resize(int cap) {
         char[] resizedArray = new char[capacity = cap];
         for(int i = 0; i < array.length; i++) {
-            if(array[i] != '\u0000') {
-                resizedArray[i] = array[i];
+            if(array[i] == '\u0000') {
+                break;
             }
+            resizedArray[i] = array[i];
         }
         array = resizedArray;
     }
